@@ -32,10 +32,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.gymjournal.R
 import com.example.gymjournal.components.BottomNavBar
 import com.example.gymjournal.navigations.Routes
 import com.example.gymjournal.ui.theme.AppTheme
@@ -70,7 +72,7 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Home") },
+                    title = { Text(stringResource(R.string.nav_home)) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -196,7 +198,7 @@ fun WorkoutCard() {
                         .align(Alignment.CenterHorizontally)
                         .padding(bottom = 10.dp)
                 ) {
-                    Text(text = "Start Routine")
+                    Text(stringResource(R.string.start_workout))
                 }
             }
         }

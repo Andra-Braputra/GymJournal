@@ -13,19 +13,22 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.gymjournal.R
 import com.example.gymjournal.navigations.Routes
 import com.example.gymjournal.ui.theme.AppTheme
 
 
+@Composable
 fun getNavigationItems(): List<NavItem> {
     return listOf(
-        NavItem("Moves", Icons.Default.FitnessCenter, Routes.Moves),
-        NavItem("Home", Icons.Default.Home, Routes.Home),
-        NavItem("Routine", Icons.Default.DateRange, Routes.Routine)
+        NavItem(stringResource(R.string.nav_moves), Icons.Default.FitnessCenter, Routes.Moves),
+        NavItem(stringResource(R.string.nav_home), Icons.Default.Home, Routes.Home),
+        NavItem(stringResource(R.string.nav_routine), Icons.Default.DateRange, Routes.Routine)
     )
 }
 

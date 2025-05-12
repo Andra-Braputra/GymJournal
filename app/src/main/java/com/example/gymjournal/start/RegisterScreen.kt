@@ -31,10 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -54,6 +56,13 @@ fun RegisterScreenPreview(){
 
 @Composable
 fun RegisterScreen(navController: NavController){
+    var username by rememberSaveable { mutableStateOf("") }
+    var dob by rememberSaveable { mutableStateOf("") }
+    var height by rememberSaveable { mutableStateOf("") }
+    var weight by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -92,8 +101,8 @@ fun RegisterScreen(navController: NavController){
                     modifier = Modifier.padding(16.dp)
                 ) {
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = username,
+                        onValueChange = { username = it },
                         label = { Text("Username") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -101,8 +110,8 @@ fun RegisterScreen(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = dob,
+                        onValueChange = { dob = it },
                         label = { Text("Date of Birth") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -110,8 +119,8 @@ fun RegisterScreen(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = height,
+                        onValueChange = { height = it },
                         label = { Text("Height") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -119,8 +128,8 @@ fun RegisterScreen(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = weight,
+                        onValueChange = {weight = it },
                         label = { Text("Weight") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -131,18 +140,20 @@ fun RegisterScreen(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = password,
+                        onValueChange = { password = it },
                         label = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
                         label = { Text("Confirm Password") },
+                        visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

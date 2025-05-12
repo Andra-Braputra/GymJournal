@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">GymJournal</string>
     <string name="ProfilePicture">Profile\n</string>
+    <string name="nav_moves">Moves</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_routine">Routine</string>
+    <string name="start_workout">Start Workout</string>
 </resources>
