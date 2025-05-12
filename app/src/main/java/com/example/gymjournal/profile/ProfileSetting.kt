@@ -30,7 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +52,11 @@ fun ProfileSettingPreview(){
 
 @Composable
 fun ProfileSetting(navController: NavController){
+    var username by rememberSaveable { mutableStateOf("") }
+    var dob by rememberSaveable { mutableStateOf("") }
+    var height by rememberSaveable { mutableStateOf("") }
+    var weight by rememberSaveable { mutableStateOf("") }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -90,8 +95,8 @@ fun ProfileSetting(navController: NavController){
                     modifier = Modifier.padding(16.dp)
                 ) {
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = username,
+                        onValueChange = { username = it },
                         label = { Text("Username") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -99,8 +104,8 @@ fun ProfileSetting(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = dob,
+                        onValueChange = { dob = it },
                         label = { Text("Date of Birth") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -108,8 +113,8 @@ fun ProfileSetting(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = height,
+                        onValueChange = { height = it },
                         label = { Text("Height") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -117,8 +122,8 @@ fun ProfileSetting(navController: NavController){
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     TextField(
-                        value = "",
-                        onValueChange = { },
+                        value = weight,
+                        onValueChange = { weight = it },
                         label = { Text("Weight") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -142,9 +147,9 @@ fun ProfileSetting(navController: NavController){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenderMenu () {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     val options = listOf("Men", "Woman", "Other")
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    var selectedOptionText by rememberSaveable { mutableStateOf(options[0]) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
