@@ -4,21 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.gymjournal.goals.GoalsScreen
-import com.example.gymjournal.home.HomeScreen
-import com.example.gymjournal.moves.MovesScreen
-import com.example.gymjournal.onboarding.OnboardingPageOne
-import com.example.gymjournal.profile.ProfileScreen
-import com.example.gymjournal.profile.ProfileSetting
-import com.example.gymjournal.routine.RoutineScreen
-import com.example.gymjournal.settings.SettingsScreen
-import com.example.gymjournal.start.RegisterScreen
+import com.example.gymjournal.presentations.home.HomeScreen
+import com.example.gymjournal.presentations.moves.MovesScreen
+import com.example.gymjournal.presentations.onboarding.OnboardingPager
+import com.example.gymjournal.presentations.profile.ProfileScreen
+import com.example.gymjournal.presentations.profile.ProfileSetting
+import com.example.gymjournal.presentations.routine.RoutineScreen
+import com.example.gymjournal.presentations.settings.SettingsScreen
+import com.example.gymjournal.presentations.start.RegisterScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.onBoarding,
+        startDestination = Routes.OnBoarding,
     ) {
         composable(Routes.Home) {
             HomeScreen(
@@ -55,13 +54,8 @@ fun AppNavGraph(navController: NavHostController) {
                 navController = navController
             )
         }
-        composable(Routes.onBoarding) {
-            OnboardingPageOne(
-                navController = navController
-            )
-        }
-        composable(Routes.Goal) {
-            GoalsScreen(
+        composable(Routes.OnBoarding) {
+            OnboardingPager(
                 navController = navController
             )
         }
