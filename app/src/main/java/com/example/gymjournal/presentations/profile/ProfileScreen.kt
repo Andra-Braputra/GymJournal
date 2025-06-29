@@ -33,16 +33,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.gymjournal.core.constant.Routes
 import com.example.gymjournal.presentations.components.BottomNavBar
 import com.example.gymjournal.presentations.components.TopNavBar
-import com.example.gymjournal.navigations.Routes
 import com.example.gymjournal.ui.theme.AppTheme
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
@@ -56,25 +59,18 @@ fun ProfilePreview(){
 
 
 @Composable
-fun ProfileScreen(navController: NavController) {
-    val userName = "Andra"
-    val height = "175 cm"
-    val weight = "75 kg"
-    val gender = "Male"
-    val dateOfBirth = "24 April, 2005 "
+fun ProfileScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val profile by viewModel.profileState.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopNavBar(navController = navController)
-        },
-        bottomBar = {
-            BottomNavBar(navController = navController)
-        },
+        topBar = { TopNavBar(navController = navController) },
+        bottomBar = { BottomNavBar(navController = navController) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    navController.navigate(Routes.Settings)
-                },
+                onClick = { navController.navigate(Routes.SETTINGS) },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Icon(Icons.Default.Settings, contentDescription = "Settings")
@@ -88,12 +84,11 @@ fun ProfileScreen(navController: NavController) {
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            Box(
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
+            // Gambar Profil
+            Box(modifier = Modifier.padding(vertical = 16.dp)) {
                 ProfileImage()
                 IconButton(
-                    onClick = { },
+                    onClick = { /* Tambah fungsi upload foto nanti */ },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
@@ -111,51 +106,27 @@ fun ProfileScreen(navController: NavController) {
                     .fillMaxWidth(0.9f)
                     .padding(8.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    ProfileInfoItem(
-                        label = "Username",
-                        value = userName,
-                        icon = Icons.Default.Person
-                    )
-
+                Column(modifier = Modifier.padding(16.dp)) {
+                    ProfileInfoItem("Name", profile.name ?: "-", Icons.Default.Person)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    ProfileInfoItem(
-                        label = "Height",
-                        value = height,
-                        icon = Icons.Default.Height
-                    )
-
+                    ProfileInfoItem("Height", profile.height ?: "-", Icons.Default.Height)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    ProfileInfoItem(
-                        label = "Weight",
-                        value = weight,
-                        icon = Icons.Default.MonitorWeight
-                    )
-
+                    ProfileInfoItem("Weight", profile.weight ?: "-", Icons.Default.MonitorWeight)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    ProfileInfoItem(
-                        label = "Gender",
-                        value = gender,
-                        icon = Icons.Default.Face
-                    )
-
+                    ProfileInfoItem("Gender", profile.gender ?: "-", Icons.Default.Face)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    ProfileInfoItem(
-                        label = "Date of Birth",
-                        value = dateOfBirth,
-                        icon = Icons.Default.Cake
-                    )
+                    ProfileInfoItem("Date of Birth", profile.dateOfBirth ?: "-", Icons.Default.Cake)
                 }
             }
+
             Button(
                 onClick = {
-                    navController.navigate(Routes.ProfileSetting) },
+                    navController.navigate(Routes.PROFILE_SETTING)
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .padding(top = 16.dp)
@@ -165,6 +136,7 @@ fun ProfileScreen(navController: NavController) {
         }
     }
 }
+
 
 @Composable
 fun ProfileInfoItem(label: String, value: String, icon: ImageVector) {

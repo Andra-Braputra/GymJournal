@@ -24,14 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.gymjournal.R
-import com.example.gymjournal.navigations.Routes
+import com.example.gymjournal.core.constant.Routes
 import kotlinx.coroutines.launch
-
 @Composable
-fun OnboardingPager(navController: NavController) {
-    val pages: List<@Composable () -> Unit> = listOf(
+fun OnboardingPager(
+    navController: NavController,
+    viewModel: OnboardingViewModel = hiltViewModel()
+) {
+    val pages = listOf<@Composable () -> Unit>(
         { OnboardingPageOneContent() },
         { OnboardingPageTwoContent() },
         { OnboardingPageThreeContent() }
@@ -49,19 +52,20 @@ fun OnboardingPager(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Pager
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
-                pages[page].invoke()
-            }
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) { page -> pages[page]() }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Dots indicator
             Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
                 repeat(pages.size) { index ->
                     val color = if (pagerState.currentPage == index)
@@ -73,13 +77,14 @@ fun OnboardingPager(navController: NavController) {
                         modifier = Modifier
                             .padding(4.dp)
                             .size(10.dp)
-                            .background(color = color, shape = MaterialTheme.shapes.small)
+                            .background(color, shape = MaterialTheme.shapes.small)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Button
             Button(
                 onClick = {
                     if (pagerState.currentPage < pages.lastIndex) {
@@ -87,8 +92,14 @@ fun OnboardingPager(navController: NavController) {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
                     } else {
-                        navController.navigate(Routes.Register) {
-                            popUpTo(Routes.OnBoarding) { inclusive = true }
+                        // ✅ Save onboarding completed
+                        viewModel.saveOnboardingState(true)
+
+                        // ✅ Navigate to AUTH, removing onboarding from backstack
+                        navController.navigate(Routes.AUTH) {
+                            popUpTo(Routes.ONBOARDING) {
+                                inclusive = true
+                            }
                         }
                     }
                 },

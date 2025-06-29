@@ -19,16 +19,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gymjournal.R
-import com.example.gymjournal.navigations.Routes
+import com.example.gymjournal.core.constant.Routes
 import com.example.gymjournal.ui.theme.AppTheme
 
 
 @Composable
 fun getNavigationItems(): List<NavItem> {
     return listOf(
-        NavItem(stringResource(R.string.nav_moves), Icons.Default.FitnessCenter, Routes.Moves),
-        NavItem(stringResource(R.string.nav_home), Icons.Default.Home, Routes.Home),
-        NavItem(stringResource(R.string.nav_routine), Icons.Default.DateRange, Routes.Routine)
+        NavItem(stringResource(R.string.nav_moves), Icons.Default.FitnessCenter, Routes.MOVES),
+        NavItem(stringResource(R.string.nav_home), Icons.Default.Home, Routes.HOME),
+        NavItem(stringResource(R.string.nav_routine), Icons.Default.DateRange, Routes.ROUTINE)
     )
 }
 

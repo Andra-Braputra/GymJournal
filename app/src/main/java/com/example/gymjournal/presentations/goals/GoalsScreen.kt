@@ -1,6 +1,5 @@
 package com.example.gymjournal.presentations.goals
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -23,38 +22,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.gymjournal.domain.model.Goal
 import com.example.gymjournal.presentations.components.BottomNavBar
 import com.example.gymjournal.presentations.components.TopNavBar
-import com.example.gymjournal.ui.theme.AppTheme
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode")
-@Composable
-fun GoalsScreenPreview() {
-    AppTheme {
-        GoalsScreen(
-            navController = NavController(LocalContext.current),
-            goals = listOf(
-                Goal(id = 1, name = "Lose Weight", detail = "5kg in 2 months", deadline = "2025-08-01"),
-                Goal(id = 2, name = "Bench Press", detail = "100kg PR", deadline = "2025-07-15")
-            ),
-            onGoalClick = {},
-            onAddClick = {}
-        )
-    }
-}
-
 
 @Composable
 fun GoalsScreen(
-    navController: NavController,
     goals: List<Goal>,
     onGoalClick: (Goal) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    navController: NavHostController
 ) {
     Scaffold(
         topBar = { TopNavBar(navController = navController) },
@@ -87,7 +66,9 @@ fun GoalsScreen(
                     .clickable { onAddClick() }
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -97,13 +78,12 @@ fun GoalsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Add Goals", style = MaterialTheme.typography.bodyMedium)
+                    Text("Add Goal", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun GoalsCard(goal: Goal, onClick: () -> Unit) {
@@ -118,10 +98,9 @@ fun GoalsCard(goal: Goal, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(goal.name, style = MaterialTheme.typography.titleLarge)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Goals: ${goal.detail}", style = MaterialTheme.typography.bodyMedium)
+            Text("Detail: ${goal.detail}", style = MaterialTheme.typography.bodyMedium)
             Text("Deadline: ${goal.deadline}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
-
 

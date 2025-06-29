@@ -1,108 +1,275 @@
 package com.example.gymjournal.presentations.start
 
-import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.gymjournal.R
-import com.example.gymjournal.navigations.Routes
-import com.example.gymjournal.ui.theme.AppTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.gymjournal.core.Response
+import com.example.gymjournal.core.constant.Routes
+import com.example.gymjournal.presentations.components.MyAlertDialog
+import com.example.gymjournal.presentations.components.MyCircularProgress
+import com.google.firebase.auth.AuthResult
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode")
 @Composable
-fun LoginScreenPreview() {
-    AppTheme {
-        LoginScreen(navController = NavController(LocalContext.current))
+fun LoginScreen(
+    navHostController: NavHostController = rememberNavController(),
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
+    val hostState = remember {
+        SnackbarHostState()
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = hostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+        Content(
+            hostState = hostState,
+            paddingValues = paddingValues,
+            signInStateFlow = loginViewModel.loginFlow,
+            resetPasswordStateFlow = loginViewModel.resetPasswordFlow,
+            onRegisterNow = { navHostController.navigate(Routes.REGISTER) },
+            onForgotPassword = { email -> loginViewModel.resetPassword(email) },
+            onLogin = { email, password -> loginViewModel.login(email, password) },
+            loginSuccess = { navHostController.navigate(Routes.HOME) { popUpTo(0) } }
+        )
     }
 }
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    var username by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+fun Content(
+    paddingValues: PaddingValues,
+    signInStateFlow: MutableSharedFlow<Response<AuthResult>>,
+    resetPasswordStateFlow: MutableSharedFlow<Response<Void?>>,
+    onRegisterNow: () -> Unit,
+    onForgotPassword: (String) -> Unit,
+    onLogin: (String, String) -> Unit,
+    loginSuccess: () -> Unit,
+    hostState: SnackbarHostState
+) {
+    val emailText = remember {
+        mutableStateOf("")
+    }
+    val passwordText = remember {
+        mutableStateOf("")
+    }
+    var showForgotPasswordDialog by remember {
+        mutableStateOf(false)
+    }
+    val scope = rememberCoroutineScope()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+    if (showForgotPasswordDialog)
+        MyAlertDialog(
+            onDismissRequest = { showForgotPasswordDialog = false },
+            onConfirmation = {
+                if (emailText.value != "") {
+                    onForgotPassword(emailText.value)
+                    showForgotPasswordDialog = false
+                } else {
+                    scope.launch {
+                        hostState.showSnackbar("Please enter email address")
+                    }
+                }
+            },
+            title = "Forgot Password?",
+            text = "Send a password reset email to entered email address.",
+            confirmButtonText = "Send",
+            dismissButtonText = "Cancel",
+            cancelable = true
+        )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        Text(
+            text = "Login",
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.gymjournal),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 32.dp)
-            )
+                .padding(start = 25.dp, end = 20.dp, top = 20.dp),
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Please sign in to continue.",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 25.dp, end = 20.dp, top = 5.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 20.dp, end = 20.dp, top = 40.dp),
+            singleLine = true,
+            value = emailText.value,
+            onValueChange = { text -> emailText.value = text },
+            label = { Text("Email") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            leadingIcon = { Icon(Icons.Filled.Email, "email") }
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(20.dp),
+            singleLine = true,
+            value = passwordText.value,
+            onValueChange = { text -> passwordText.value = text },
+            label = { Text("Password") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
+            leadingIcon = { Icon(Icons.Filled.Lock, "password") }
+        )
+        Button(
+            onClick = {
+                onLogin(emailText.value, passwordText.value)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 20.dp, end = 20.dp, top = 20.dp),
+            content = { Text(text = "Login") }
+        )
+        Text(
+            color = MaterialTheme.colorScheme.primary,
+            text = "Forgot Password?",
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight()
+                .align(alignment = Alignment.CenterHorizontally)
+                .padding(start = 20.dp, end = 20.dp, top = 10.dp)
+                .clickable { showForgotPasswordDialog = true },
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = buildAnnotatedString {
+                append("Don't have an account?")
+                withStyle(style = SpanStyle(MaterialTheme.colorScheme.primary)) { append(" Register now") }
+            },
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight()
+                .align(alignment = Alignment.CenterHorizontally)
+                .padding(20.dp)
+                .clickable { onRegisterNow() },
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+    LoginInState(
+        flow = signInStateFlow,
+        onSuccess = { loginSuccess() },
+        onError = { scope.launch { hostState.showSnackbar("The email address or password is incorrect") } }
+    )
+    ResetPasswordState(
+        flow = resetPasswordStateFlow,
+        onSuccess = { scope.launch { hostState.showSnackbar("Email sent successfully, check your inbox") } },
+        onError = { scope.launch { hostState.showSnackbar("Oops! something went wrong, try again") } }
+    )
+}
 
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(16.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    TextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+@Composable
+fun LoginInState(
+    flow: MutableSharedFlow<Response<AuthResult>>,
+    onSuccess: () -> Unit,
+    onError: () -> Unit
+) {
+    val isLoading = remember { mutableStateOf(false) }
+    if (isLoading.value) MyCircularProgress()
+    LaunchedEffect(Unit) {
+        flow.collect {
+            when (it) {
+                is Response.Loading -> {
+                    Timber.tag("Login state -> ").i("Loading")
+                    isLoading.value = true
+                }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                is Response.Error -> {
+                    Timber.tag("Login state -> ").e(it.message)
+                    isLoading.value = false
+                    onError()
+                }
 
-                    TextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                is Response.Success -> {
+                    Timber.tag("Login state -> ").i("Success")
+                    isLoading.value = false
+                    onSuccess()
                 }
             }
+        }
+    }
+}
 
-            Button(
-                onClick = {
-                    navController.navigate(Routes.Home)
-                },
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 16.dp)
-            ) {
-                Text("Login")
+@Composable
+fun ResetPasswordState(
+    flow: MutableSharedFlow<Response<Void?>>,
+    onSuccess: () -> Unit,
+    onError: () -> Unit
+) {
+    val isLoading = remember { mutableStateOf(false) }
+    if (isLoading.value) MyCircularProgress()
+    LaunchedEffect(Unit) {
+        flow.collect {
+            when (it) {
+                is Response.Loading -> {
+                    Timber.tag("Reset password state -> ").i("Loading")
+                    isLoading.value = true
+                }
+
+                is Response.Error -> {
+                    Timber.tag("Reset password state -> ").e(it.message)
+                    isLoading.value = false
+                    onError()
+                }
+
+                is Response.Success -> {
+                    Timber.tag("Reset password state -> ").i("Success")
+                    isLoading.value = false
+                    onSuccess()
+                }
             }
         }
     }

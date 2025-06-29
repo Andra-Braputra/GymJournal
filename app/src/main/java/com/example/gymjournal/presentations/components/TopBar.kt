@@ -33,9 +33,7 @@ fun TopNavBar(navController: NavController){
             )
         },
         navigationIcon = {
-            IconButton(onClick = {
-
-            }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Profile"

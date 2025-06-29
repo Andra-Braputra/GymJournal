@@ -1,216 +1,196 @@
 package com.example.gymjournal.presentations.start
 
-import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.gymjournal.R
-import com.example.gymjournal.navigations.Routes
-import com.example.gymjournal.presentations.profile.ProfileImage
-import com.example.gymjournal.ui.theme.AppTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.example.gymjournal.core.Response
+import com.example.gymjournal.core.constant.Routes
+import com.example.gymjournal.presentations.components.MyCircularProgress
+import com.google.firebase.auth.AuthResult
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode")
-@Composable
-fun RegisterScreenPreview(){
-    AppTheme {
-        RegisterScreen(navController = NavController(LocalContext.current))
-    }
-}
-
-@Composable
-fun RegisterScreen(navController: NavController){
-    var username by rememberSaveable { mutableStateOf("") }
-    var dob by rememberSaveable { mutableStateOf("") }
-    var height by rememberSaveable { mutableStateOf("") }
-    var weight by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-    ){
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Box(
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
-                ProfileImage()
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Photo")
-                }
-            }
-
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    TextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    TextField(
-                        value = dob,
-                        onValueChange = { dob = it },
-                        label = { Text("Date of Birth") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    TextField(
-                        value = height,
-                        onValueChange = { height = it },
-                        label = { Text("Height") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    TextField(
-                        value = weight,
-                        onValueChange = {weight = it },
-                        label = { Text("Weight") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    GenderMenu()
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    TextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    TextField(
-                        value = confirmPassword,
-                        onValueChange = { confirmPassword = it },
-                        label = { Text("Confirm Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-            Button(
-                onClick = {navController.navigate(Routes.Home)},
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 16.dp)
-            ) {
-                Text("Sign-up")
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenderMenu () {
-    var expanded by remember { mutableStateOf(false) }
-    val options = listOf("Men", "Woman", "Other")
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
+fun RegisterScreen(
+    navHostController: NavHostController,
+    registerViewModel: RegisterViewModel = hiltViewModel()
+) {
+    val scope = rememberCoroutineScope()
+    val hostState = remember { SnackbarHostState() }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = hostState) },
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Register") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { navHostController.popBackStack() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back button"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Content(
+            paddingValues = paddingValues,
+            registerFlowState = registerViewModel.registerFlow,
+            onNavigateToLogin = { navHostController.navigate(Routes.LOGIN )},
+            onRegister = { email, password -> registerViewModel.register(email, password) },
+            registerSuccess = { navHostController.navigate(Routes.HOME) },
+            registerError = { scope.launch { hostState.showSnackbar("Oops! something went wrong, check your connection and try again") } }
+        )
+    }
+}
+
+@Composable
+fun Content(
+    paddingValues: PaddingValues,
+    registerFlowState: MutableSharedFlow<Response<AuthResult>>,
+    onRegister: (String, String) -> Unit,
+    onNavigateToLogin: () -> Unit,
+    registerSuccess: () -> Unit,
+    registerError: () -> Unit
+) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .padding(paddingValues)
     ) {
+        val emailText = remember {
+            mutableStateOf("")
+        }
+        val passwordText = remember {
+            mutableStateOf("")
+        }
+
         TextField(
-            readOnly = true,
-            value = selectedOptionText,
-            onValueChange = {},
-            label = { Text(stringResource(R.string.Gender)) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 20.dp, end = 20.dp, top = 5.dp),
+            value = emailText.value,
+            onValueChange = { text -> emailText.value = text },
+            label = { Text("Email") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            leadingIcon = { Icon(Icons.Filled.Email, "email") },
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(20.dp),
+            value = passwordText.value,
+            onValueChange = { text -> passwordText.value = text },
+            label = { Text("Password") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            leadingIcon = { Icon(Icons.Filled.Lock, "password") },
+        )
+        Button(
+            onClick = { onRegister(emailText.value, passwordText.value) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 20.dp, end = 20.dp, top = 20.dp),
+            content = { Text(text = "Register") }
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            style = MaterialTheme.typography.titleMedium,
+            text = buildAnnotatedString {
+                append("Already have an account?")
+                withStyle(style = SpanStyle(MaterialTheme.colorScheme.primary)) { append(" Login") }
             },
             modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(),
-            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                .wrapContentWidth()
+                .wrapContentHeight()
+                .align(alignment = Alignment.CenterHorizontally)
+                .padding(20.dp)
+                .clickable { onNavigateToLogin() }
         )
+    }
+    RegisterState(
+        registerFlowState = registerFlowState,
+        onSuccess = { registerSuccess() },
+        onError = { registerError() }
+    )
+}
 
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-                        selectedOptionText = selectionOption
-                        expanded = false
-                    }
-                )
+@Composable
+fun RegisterState(
+    registerFlowState: MutableSharedFlow<Response<AuthResult>>,
+    onSuccess: () -> Unit,
+    onError: () -> Unit
+) {
+    val isLoading = remember { mutableStateOf(false) }
+    if (isLoading.value) MyCircularProgress()
+    LaunchedEffect(Unit) {
+        registerFlowState.collect {
+            when (it) {
+                is Response.Loading -> {
+                    Timber.tag("Register state -> ").i("Loading")
+                    isLoading.value = true
+                }
+
+                is Response.Error -> {
+                    Timber.tag("Register state -> ").e(it.message)
+                    isLoading.value = false
+                    onError()
+                }
+
+                is Response.Success -> {
+                    Timber.tag("Register state -> ").i("Success")
+                    isLoading.value = false
+                    onSuccess()
+                }
             }
         }
     }

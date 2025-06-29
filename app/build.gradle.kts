@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -12,7 +13,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.moviedb"
+        applicationId = "com.example.gymjournal"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -49,10 +50,13 @@ dependencies {
     //Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
     kapt(libs.hilt.compiler)
 
     // For ViewModel injection
-    implementation(libs.androidx.hilt.lifecycle.viewmodel)
     kapt(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
@@ -105,4 +109,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.material.icons.extended)
+
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
 }
