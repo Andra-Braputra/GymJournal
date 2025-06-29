@@ -23,7 +23,6 @@ sealed class ExerciseUiState {
 sealed class ExerciseFormEvent {
     data class ShowSnackbar(val message: String) : ExerciseFormEvent()
 }
-
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
     private val useCases: ExerciseUseCases
@@ -35,21 +34,30 @@ class ExerciseViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<ExerciseFormEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
+    private var hasSynced = false
+
     init {
-        syncAndLoadExercises()
+        loadExercises()
     }
 
-    fun syncAndLoadExercises() {
+    fun loadExercises(sync: Boolean = true) {
         viewModelScope.launch {
             _uiState.value = ExerciseUiState.Loading
             try {
-                useCases.syncExercises()
-                useCases.getExercises().collectLatest { exercises: List<Exercise> ->
-                    _uiState.value = ExerciseUiState.Success(exercises)
+                // ✅ Sync only once
+                if (sync && !hasSynced) {
+                    useCases.syncExercises()
+                    hasSynced = true
                 }
+
+                useCases.getExercises().collectLatest { exercises ->
+                    val unique = exercises.distinctBy { it.id }
+                    _uiState.value = ExerciseUiState.Success(unique)
+                }
+
             } catch (e: Exception) {
                 _uiState.value = ExerciseUiState.Error("Failed to load exercises")
-                _eventFlow.emit(ExerciseFormEvent.ShowSnackbar("Failed to sync exercises"))
+                _eventFlow.emit(ExerciseFormEvent.ShowSnackbar("Failed to load exercises"))
             }
         }
     }

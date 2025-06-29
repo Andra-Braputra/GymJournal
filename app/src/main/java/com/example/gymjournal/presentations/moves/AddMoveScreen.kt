@@ -1,10 +1,10 @@
 package com.example.gymjournal.presentations.moves
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -16,7 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,17 +32,15 @@ fun AddMoveScreen(
     navController: NavController,
     viewModel: ExerciseViewModel = hiltViewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var muscle by remember { mutableStateOf("") }
-    var equipment by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var muscle by rememberSaveable { mutableStateOf("") }
+    var equipment by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     val isFormValid = name.isNotBlank() && muscle.isNotBlank() && equipment.isNotBlank()
 
-    // Observe snackbar events
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
@@ -57,51 +55,58 @@ fun AddMoveScreen(
         topBar = { TopNavBar(navController = navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Add New Move", style = MaterialTheme.typography.titleLarge)
+            item {
+                Text("Add New Move", style = MaterialTheme.typography.titleLarge)
+            }
 
-            // ✅ Reusable Form Fields
-            ExerciseFormFields(
-                name = name,
-                onNameChange = { name = it },
-                muscle = muscle,
-                onMuscleChange = { muscle = it },
-                equipment = equipment,
-                onEquipmentChange = { equipment = it },
-                description = description,
-                onDescriptionChange = { description = it }
-            )
+            item {
+                ExerciseFormFields(
+                    name = name,
+                    onNameChange = { name = it },
+                    muscle = muscle,
+                    onMuscleChange = { muscle = it },
+                    equipment = equipment,
+                    onEquipmentChange = { equipment = it },
+                    description = description,
+                    onDescriptionChange = { description = it }
+                )
+            }
 
-            Button(
-                onClick = {
-                    val newExercise = Exercise(
-                        id = 0,
-                        name = name,
-                        muscle = muscle,
-                        equipment = equipment,
-                        description = description
-                    )
-                    viewModel.insertExercise(newExercise)
-                    navController.popBackStack()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isFormValid
-            ) {
-                Text("Save")
+            item {
+                Button(
+                    onClick = {
+                        val newExercise = Exercise(
+                            id = 0,
+                            name = name,
+                            muscle = muscle,
+                            equipment = equipment,
+                            description = description
+                        )
+                        viewModel.insertExercise(newExercise)
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isFormValid
+                ) {
+                    Text("Save")
+                }
             }
 
             if (!isFormValid) {
-                Text(
-                    text = "Please fill all required fields (name, muscle, equipment).",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
+                item {
+                    Text(
+                        text = "Please fill all required fields (name, muscle, equipment).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

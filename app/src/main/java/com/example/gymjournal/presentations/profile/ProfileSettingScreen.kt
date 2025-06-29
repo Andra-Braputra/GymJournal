@@ -1,12 +1,9 @@
 package com.example.gymjournal.presentations.profile
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +26,6 @@ import androidx.navigation.NavController
 import com.example.gymjournal.domain.model.Profile
 import com.example.gymjournal.presentations.components.BottomNavBar
 import com.example.gymjournal.presentations.components.TopNavBar
-
 
 @Composable
 fun ProfileSettingScreen(
@@ -56,69 +52,74 @@ fun ProfileSettingScreen(
         topBar = { TopNavBar(navController = navController) },
         bottomBar = { BottomNavBar(navController = navController) }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            TextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                TextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            TextField(
-                value = dob,
-                onValueChange = { dob = it },
-                label = { Text("Date of Birth") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                TextField(
+                    value = dob,
+                    onValueChange = { dob = it },
+                    label = { Text("Date of Birth") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            TextField(
-                value = height,
-                onValueChange = { height = it },
-                label = { Text("Height") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                TextField(
+                    value = height,
+                    onValueChange = { height = it },
+                    label = { Text("Height") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            TextField(
-                value = weight,
-                onValueChange = { weight = it },
-                label = { Text("Weight") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                TextField(
+                    value = weight,
+                    onValueChange = { weight = it },
+                    label = { Text("Weight") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            GenderDropdown(selected = gender, onSelected = { gender = it })
+            item {
+                GenderDropdown(selected = gender, onSelected = { gender = it })
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    viewModel.updateProfile(
-                        Profile(
-                            name = name,
-                            height = height,
-                            weight = weight,
-                            gender = gender,
-                            dateOfBirth = dob
+            item {
+                Button(
+                    onClick = {
+                        viewModel.updateProfile(
+                            Profile(
+                                name = name,
+                                height = height,
+                                weight = weight,
+                                gender = gender,
+                                dateOfBirth = dob
+                            )
                         )
-                    )
-                    navController.popBackStack()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Profile")
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Profile")
+                }
             }
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)

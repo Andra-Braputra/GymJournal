@@ -5,10 +5,28 @@ import com.example.gymjournal.data.local.entity.ExerciseEntity
 import com.example.gymjournal.domain.model.Exercise
 
 // DTO → Domain
-fun ExerciseDto.toDomain(): Exercise = Exercise(id, name, description, muscle, equipment)
+fun ExerciseDto.toDomain(): Exercise = Exercise(
+    id = id,
+    name = name,
+    muscle = muscle,
+    equipment = equipment,
+    description = description
+)
 
 // Domain → Entity
-fun Exercise.toEntity(): ExerciseEntity = ExerciseEntity(id, name, description, muscle, equipment)
+fun Exercise.toEntity(): ExerciseEntity = ExerciseEntity(
+    id = id,
+    name = name,
+    muscle = muscle,
+    equipment = equipment,
+    description = description
+)
 
 // Entity → Domain
-fun ExerciseEntity.toDomain(): Exercise = Exercise(id, name, description, muscle, equipment)
+fun ExerciseEntity.toDomain(): Exercise = Exercise(
+    id = id,
+    name = name,
+    muscle = muscle,
+    equipment = equipment,
+    description = description
+)

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,9 +42,9 @@ fun EditRoutineExerciseScreen(
     val scope = rememberCoroutineScope()
 
     var exercise by remember { mutableStateOf<RoutineExercise?>(null) }
-    var sets by remember { mutableStateOf("") }
-    var reps by remember { mutableStateOf("") }
-    var weight by remember { mutableStateOf("") }
+    var sets by rememberSaveable { mutableStateOf("") }
+    var reps by rememberSaveable { mutableStateOf("") }
+    var weight by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(exerciseId) {
         viewModel.getRoutineExerciseById(exerciseId)?.let {
@@ -59,43 +61,52 @@ fun EditRoutineExerciseScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(
+        LazyColumn(
+            contentPadding = padding,
             modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Exercise: ${exercise?.exerciseName ?: ""}", style = MaterialTheme.typography.titleMedium)
+            item {
+                Text(
+                    "Exercise: ${exercise?.exerciseName ?: ""}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
 
-            RoutineExerciseFormFields(
-                sets = sets,
-                reps = reps,
-                weight = weight,
-                onSetsChange = { sets = it },
-                onRepsChange = { reps = it },
-                onWeightChange = { weight = it }
-            )
+            item {
+                RoutineExerciseFormFields(
+                    sets = sets,
+                    reps = reps,
+                    weight = weight,
+                    onSetsChange = { sets = it },
+                    onRepsChange = { reps = it },
+                    onWeightChange = { weight = it }
+                )
+            }
 
-            Button(
-                onClick = {
-                    if (exercise != null && sets.toIntOrNull() != null && reps.toIntOrNull() != null) {
-                        val updated = exercise!!.copy(
-                            sets = sets.toInt(),
-                            reps = reps.toInt(),
-                            weight = weight.toFloatOrNull() ?: 0f
-                        )
-                        viewModel.updateRoutineExercise(updated)
-                        navController.popBackStack()
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Fill valid sets and reps.")
+            item {
+                Button(
+                    onClick = {
+                        if (exercise != null && sets.toIntOrNull() != null && reps.toIntOrNull() != null) {
+                            val updated = exercise!!.copy(
+                                sets = sets.toInt(),
+                                reps = reps.toInt(),
+                                weight = weight.toFloatOrNull() ?: 0f
+                            )
+                            viewModel.updateRoutineExercise(updated)
+                            navController.popBackStack()
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Fill valid sets and reps.")
+                            }
                         }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Update Exercise")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Update Exercise")
+                }
             }
         }
     }

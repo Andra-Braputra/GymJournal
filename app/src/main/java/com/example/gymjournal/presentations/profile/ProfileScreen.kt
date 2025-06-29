@@ -5,18 +5,18 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cake
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.MonitorWeight
@@ -28,7 +28,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,7 +56,6 @@ fun ProfilePreview(){
     }
 }
 
-
 @Composable
 fun ProfileScreen(
     navController: NavController,
@@ -77,66 +75,48 @@ fun ProfileScreen(
             }
         }
     ) { paddingValues ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // Gambar Profil
-            Box(modifier = Modifier.padding(vertical = 16.dp)) {
-                ProfileImage()
-                IconButton(
-                    onClick = { /* Tambah fungsi upload foto nanti */ },
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                        .fillMaxWidth(0.9f)
+                        .padding(8.dp)
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Photo")
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        ProfileInfoItem("Name", profile.name ?: "-", Icons.Default.Person)
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        ProfileInfoItem("Height", profile.height ?: "-", Icons.Default.Height)
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        ProfileInfoItem("Weight", profile.weight ?: "-", Icons.Default.MonitorWeight)
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        ProfileInfoItem("Gender", profile.gender ?: "-", Icons.Default.Face)
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        ProfileInfoItem("Date of Birth", profile.dateOfBirth ?: "-", Icons.Default.Cake)
+                    }
                 }
             }
 
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(8.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    ProfileInfoItem("Name", profile.name ?: "-", Icons.Default.Person)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    ProfileInfoItem("Height", profile.height ?: "-", Icons.Default.Height)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    ProfileInfoItem("Weight", profile.weight ?: "-", Icons.Default.MonitorWeight)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    ProfileInfoItem("Gender", profile.gender ?: "-", Icons.Default.Face)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    ProfileInfoItem("Date of Birth", profile.dateOfBirth ?: "-", Icons.Default.Cake)
+            item {
+                Button(
+                    onClick = { navController.navigate(Routes.PROFILE_SETTING) },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 16.dp)
+                ) {
+                    Text("Edit Profile")
                 }
-            }
-
-            Button(
-                onClick = {
-                    navController.navigate(Routes.PROFILE_SETTING)
-                },
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 16.dp)
-            ) {
-                Text("Edit Profile")
             }
         }
     }
 }
-
 
 @Composable
 fun ProfileInfoItem(label: String, value: String, icon: ImageVector) {

@@ -21,7 +21,7 @@ import com.example.gymjournal.data.repository.OnboardingRepositoryImpl
 import com.example.gymjournal.data.repository.ProfileRepositoryImpl
 import com.example.gymjournal.data.repository.ThemeRepositoryImpl
 import com.example.gymjournal.data.source.local.ProfileLocalDataSource
-import com.example.gymjournal.data.source.remote.ExerciseRemoteDataSource
+import com.example.gymjournal.data.source.remote.FirestoreExerciseSource
 import com.example.gymjournal.domain.repository.ExerciseRepository
 import com.example.gymjournal.domain.repository.GoalRepository
 import com.example.gymjournal.domain.repository.OnboardingRepository
@@ -43,6 +43,7 @@ import com.example.gymjournal.domain.usecase.goal.UpdateGoal
 import com.example.gymjournal.domain.usecase.user.GetProfileUseCase
 import com.example.gymjournal.domain.usecase.user.ProfileUseCases
 import com.example.gymjournal.domain.usecase.user.SaveProfileUseCase
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -102,9 +103,19 @@ object AppModule {
     // ✅ Repositories
     @Provides
     fun provideExerciseRepository(
-        remote: ExerciseRemoteDataSource,
+        remote: FirestoreExerciseSource,
         dao: ExerciseDao
-    ): ExerciseRepository = ExerciseRepositoryImpl(remote, dao)
+    ): ExerciseRepository {
+        return ExerciseRepositoryImpl(
+            firestoreSource = remote,
+            dao = dao
+        )
+    }
+
+    @Provides
+    fun provideExerciseRemoteSource(
+        firestore: FirebaseFirestore
+    ): FirestoreExerciseSource = FirestoreExerciseSource(firestore)
 
     @Provides
     @Singleton

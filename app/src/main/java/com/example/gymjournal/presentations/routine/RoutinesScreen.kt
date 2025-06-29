@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,7 @@ fun RoutinesScreen(
 ) {
     val routines by viewModel.allRoutines.collectAsState()
     val selectedRoutine by viewModel.selectedRoutine.collectAsState()
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     var showDeleteDialogFor by remember { mutableStateOf<Routine?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -58,7 +59,7 @@ fun RoutinesScreen(
     Scaffold(
         topBar = { TopNavBar(navController) },
         bottomBar = { BottomNavBar(navController) },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -75,9 +76,7 @@ fun RoutinesScreen(
             )
 
             Button(
-                onClick = {
-                    navController.navigate(Routes.routineDetail(-1)) // for new routine
-                },
+                onClick = { navController.navigate(Routes.routineDetail(-1)) },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(10.dp)
@@ -87,58 +86,30 @@ fun RoutinesScreen(
 
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(filteredRoutines) { routine ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate(Routes.routineDetail(routine.id))
+                    RoutineCard(
+                        routine = routine,
+                        isSelected = routine.id == selectedRoutine?.id,
+                        onSelect = {
+                            viewModel.selectRoutine(routine)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Selected '${routine.name}'")
                             }
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = routine.name,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            if (routine.id == selectedRoutine?.id) {
-                                Text(
-                                    text = "Currently Selected",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                TextButton(onClick = {
-                                    viewModel.selectRoutine(routine)
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Selected '${routine.name}'")
-                                    }
-                                }) {
-                                    Text("Select")
-                                }
-
-                                TextButton(onClick = {
-                                    showDeleteDialogFor = routine
-                                }) {
-                                    Text("Delete")
-                                }
-                            }
+                        },
+                        onDelete = { showDeleteDialogFor = routine },
+                        onClick = {
+                            navController.navigate(Routes.routineDetail(routine.id))
                         }
-                    }
+                    )
                 }
             }
         }
     }
 
+    // Delete Dialog
     showDeleteDialogFor?.let { routine ->
         AlertDialog(
             onDismissRequest = { showDeleteDialogFor = null },
@@ -163,3 +134,48 @@ fun RoutinesScreen(
         )
     }
 }
+
+@Composable
+fun RoutineCard(
+    routine: Routine,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = routine.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            if (isSelected) {
+                Text(
+                    text = "Currently Selected",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onSelect) {
+                    Text("Select")
+                }
+                TextButton(onClick = onDelete) {
+                    Text("Delete")
+                }
+            }
+        }
+    }
+}
+

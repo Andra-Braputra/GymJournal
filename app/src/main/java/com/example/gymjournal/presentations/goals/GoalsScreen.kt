@@ -3,6 +3,7 @@ package com.example.gymjournal.presentations.goals
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Card
@@ -39,46 +42,52 @@ fun GoalsScreen(
         topBar = { TopNavBar(navController = navController) },
         bottomBar = { BottomNavBar(navController = navController) }
     ) { paddingValues ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize()
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(vertical = 16.dp),
         ) {
-            Text(
-                text = "Goals",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(16.dp)
-            )
+            // Header
+            item {
+                Text(
+                    text = "Goals",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
 
-            // List of Goals
-            goals.forEach { goal ->
+            // Goals list
+            items(goals) { goal ->
                 GoalsCard(goal = goal, onClick = { onGoalClick(goal) })
             }
 
-            // Add Goal Button Card
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                modifier = Modifier
-                    .width(340.dp)
-                    .padding(bottom = 10.dp)
-                    .clickable { onAddClick() }
-            ) {
-                Column(
+            // Add Goal button
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .width(340.dp)
+                        .padding(bottom = 10.dp)
+                        .clickable { onAddClick() }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Add",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Add Goal", style = MaterialTheme.typography.bodyMedium)
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = "Add",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Add Goal", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         }

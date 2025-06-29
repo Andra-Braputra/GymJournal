@@ -1,12 +1,16 @@
 package com.example.gymjournal.presentations.routine
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -42,74 +46,90 @@ fun AddRoutineExerciseScreen(
     viewModel: RoutineViewModel = hiltViewModel(),
     exerciseViewModel: ExerciseViewModel = hiltViewModel()
 ) {
-    // 🔽 Di sinilah kamu menaruhnya
     val uiState by exerciseViewModel.uiState.collectAsState()
-    val allExercises = if (uiState is ExerciseUiState.Success) {
-        (uiState as ExerciseUiState.Success).exercises
-    } else emptyList()
-
-    val selectedExercise = remember(allExercises) {
-        allExercises.find { it.id == exerciseId }
+    val exercises = (uiState as? ExerciseUiState.Success)?.exercises ?: emptyList()
+    val selectedExercise = remember(exercises) {
+        exercises.find { it.id == exerciseId }
     }
 
-    // 🔽 Lanjut dengan sisa state dan UI seperti ini
     var sets by rememberSaveable { mutableStateOf("") }
     var reps by rememberSaveable { mutableStateOf("") }
     var weight by rememberSaveable { mutableStateOf("") }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Exercise to Day") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Exercise to Day") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(
+        LazyColumn(
+            contentPadding = padding,
             modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Exercise: ${selectedExercise?.name ?: "Exercise not found"}",
-                style = MaterialTheme.typography.titleMedium
-            )
+            item {
+                Text(
+                    text = "Exercise: ${selectedExercise?.name ?: "Not Found"}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
 
-            RoutineExerciseFormFields(
-                sets = sets,
-                reps = reps,
-                weight = weight,
-                onSetsChange = { sets = it },
-                onRepsChange = { reps = it },
-                onWeightChange = { weight = it }
-            )
+            item {
+                RoutineExerciseFormFields(
+                    sets = sets,
+                    reps = reps,
+                    weight = weight,
+                    onSetsChange = { sets = it },
+                    onRepsChange = { reps = it },
+                    onWeightChange = { weight = it }
+                )
+            }
 
-            Button(
-                onClick = {
-                    val isValid = sets.toIntOrNull() != null && reps.toIntOrNull() != null
-                    if (selectedExercise != null && isValid) {
-                        val newExercise = RoutineExercise(
-                            id = 0,
-                            dayId = dayId,
-                            exerciseId = selectedExercise.id,
-                            exerciseName = selectedExercise.name,
-                            sets = sets.toInt(),
-                            reps = reps.toInt(),
-                            weight = weight.toFloatOrNull() ?: 0f
-                        )
-                        viewModel.insertExerciseToDay(newExercise)
-                        navController.popBackStack()
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Please select a valid exercise and enter valid sets/reps.")
+            item {
+                Button(
+                    onClick = {
+                        val validSets = sets.toIntOrNull()
+                        val validReps = reps.toIntOrNull()
+                        val validWeight = weight.toFloatOrNull() ?: 0f
+
+                        if (selectedExercise != null && validSets != null && validReps != null) {
+                            val newExercise = RoutineExercise(
+                                id = 0,
+                                dayId = dayId,
+                                exerciseId = selectedExercise.id,
+                                exerciseName = selectedExercise.name,
+                                sets = validSets,
+                                reps = validReps,
+                                weight = validWeight
+                            )
+                            viewModel.insertExerciseToDay(newExercise)
+                            navController.popBackStack()
+                        } else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Please enter valid sets and reps, and make sure exercise is selected."
+                                )
+                            }
                         }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Exercise")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Exercise")
+                }
             }
         }
     }
 }
+
